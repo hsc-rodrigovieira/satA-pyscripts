@@ -73,6 +73,61 @@ class KPI(object):
         else:
             return None        
 
+    def kpi4(self, **kwargs) -> int:
+        # 4. Taxa de mortalidade institucional
+        chaves_obrigatorias = [
+            'cli_neo_precoce_obitos','cli_neo_precoce_saidas',
+            'cli_neo_tardio_obitos','cli_neo_tardio_saidas',
+            'cli_pedi_obitos','cli_pedi_saidas',
+            'cli_ad_obitos','cli_ad_saidas',
+            'cli_idoso_obitos','cli_idoso_saidas',
+            'cir_neo_precoce_obitos','cir_neo_precoce_saidas',
+            'cir_neo_tardio_obitos','cir_neo_tardio_saidas',
+            'cir_pedi_obitos','cir_pedi_saidas',
+            'cir_ad_obitos','cir_ad_saidas',
+            'cir_idoso_obitos','cir_idoso_saidas'
+        ]
+
+        if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
+            # Calcular o KPI        
+            cli_total_obitos = kwargs['cli_neo_precoce_total_obitos']+kwargs['cli_neo_tardio_total_obitos']+kwargs['cli_pedi_total_obitos']+kwargs['cli_ad_total_obitos']+kwargs['cli_idoso_total_obitos']
+            cir_total_obitos = kwargs['cir_neo_precoce_total_obitos']+kwargs['cir_neo_tardio_total_obitos']+kwargs['cir_pedi_total_obitos']+kwargs['cir_ad_total_obitos']+kwargs['cir_idoso_total_obitos']
+            cli_total_saidas = kwargs['cli_neo_precoce_total_saidas']+kwargs['cli_neo_tardio_total_saidas']+kwargs['cli_pedi_total_saidas']+kwargs['cli_ad_total_saidas']+kwargs['cli_idoso_total_saidas']
+            cir_total_saidas = kwargs['cir_neo_precoce_total_saidas']+kwargs['cir_neo_tardio_total_saidas']+kwargs['cir_pedi_total_saidas']+kwargs['cir_ad_total_saidas']+kwargs['cir_idoso_total_saidas']
+            
+            neo_precoce_total_obitos = kwargs['cli_neo_precoce_total_obitos']+kwargs['cir_neo_precoce_total_obitos']
+            neo_tardio_total_obitos = kwargs['cli_neo_tardio_total_obitos']+kwargs['cir_neo_tardio_total_obitos']
+
+
+            ####
+
+            cli_pedi = self.kpi_tempo_medio( numerador = kwargs['cli_pedi_total_pacientes_dia'],
+                                            denominador = kwargs['cli_pedi_total_saidas'])
+            cli_ad = self.kpi_tempo_medio( numerador = kwargs['cli_ad_total_pacientes_dia'],
+                                           denominador = kwargs['cli_ad_total_saidas'])
+            cli_idoso = self.kpi_tempo_medio( numerador = kwargs['cli_idoso_total_pacientes_dia'],
+                                              denominador = kwargs['cli_idoso_total_saidas'])
+            cir_pedi = self.kpi_tempo_medio( numerador = kwargs['cir_pedi_total_pacientes_dia'],
+                                             denominador = kwargs['cir_pedi_total_saidas'])
+            cir_ad = self.kpi_tempo_medio( numerador = kwargs['cir_ad_total_pacientes_dia'],
+                                           denominador = kwargs['cir_ad_total_saidas'])
+            cir_idoso = self.kpi_tempo_medio( numerador = kwargs['cir_idoso_total_pacientes_dia'],
+                                              denominador = kwargs['cir_idoso_total_saidas'])
+            clinico = self.kpi_tempo_medio( numerador = cli_total_pacientes_dia,
+                                            denominador = cli_total_saidas)
+            cirurgico = self.kpi_tempo_medio( numerador = cir_total_pacientes_dia,
+                                              denominador = cir_total_saidas)
+            ped = self.kpi_tempo_medio( numerador = ped_total_pacientes_dia,
+                                        denominador = ped_total_saidas)
+            ad = self.kpi_tempo_medio( numerador = ad_total_pacientes_dia,
+                                       denominador = ad_total_saidas)
+            idoso = self.kpi_tempo_medio( numerador = idoso_total_pacientes_dia,
+                                          denominador = idoso_total_saidas)
+            
+            return cli_pedi,cli_ad,cli_idoso,cir_pedi,cir_ad,cir_idoso,clinico,cirurgico,ped,ad,idoso
+        else:
+            return None
+
     def kpi5(self, **kwargs) -> int:
         # 5. Tempo médio de internação
         chaves_obrigatorias = [
@@ -85,7 +140,41 @@ class KPI(object):
             ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
             # Calcular o KPI        
-            return 
+            cli_total_pacientes_dia = kwargs['cli_pedi_total_pacientes_dia']+kwargs['cli_ad_total_pacientes_dia']+kwargs['cli_idoso_total_pacientes_dia']
+            cir_total_pacientes_dia = kwargs['cir_pedi_total_pacientes_dia']+kwargs['cir_ad_total_pacientes_dia']+kwargs['cir_idoso_total_pacientes_dia']
+            ped_total_pacientes_dia = kwargs['cir_pedi_total_pacientes_dia']+kwargs['cli_pedi_total_pacientes_dia']
+            ad_total_pacientes_dia = kwargs['cir_ad_total_pacientes_dia']+kwargs['cli_ad_total_pacientes_dia']
+            idoso_total_pacientes_dia = kwargs['cir_idoso_total_pacientes_dia']+kwargs['cli_idoso_total_pacientes_dia']
+            cli_total_saidas = kwargs['cli_pedi_total_saidas']+kwargs['cli_ad_total_saidas']+kwargs['cli_idoso_total_saidas']
+            cir_total_saidas = kwargs['cir_pedi_total_saidas']+kwargs['cir_ad_total_saidas']+kwargs['cir_idoso_total_saidas']
+            ped_total_saidas = kwargs['cir_pedi_total_saidas']+kwargs['cli_pedi_total_saidas']
+            ad_total_saidas = kwargs['cir_ad_total_saidas']+kwargs['cli_ad_total_saidas']
+            idoso_total_saidas = kwargs['cir_idoso_total_saidas']+kwargs['cli_idoso_total_saidas']
+
+            cli_pedi = self.kpi_tempo_medio( numerador = kwargs['cli_pedi_total_pacientes_dia'],
+                                            denominador = kwargs['cli_pedi_total_saidas'])
+            cli_ad = self.kpi_tempo_medio( numerador = kwargs['cli_ad_total_pacientes_dia'],
+                                           denominador = kwargs['cli_ad_total_saidas'])
+            cli_idoso = self.kpi_tempo_medio( numerador = kwargs['cli_idoso_total_pacientes_dia'],
+                                              denominador = kwargs['cli_idoso_total_saidas'])
+            cir_pedi = self.kpi_tempo_medio( numerador = kwargs['cir_pedi_total_pacientes_dia'],
+                                             denominador = kwargs['cir_pedi_total_saidas'])
+            cir_ad = self.kpi_tempo_medio( numerador = kwargs['cir_ad_total_pacientes_dia'],
+                                           denominador = kwargs['cir_ad_total_saidas'])
+            cir_idoso = self.kpi_tempo_medio( numerador = kwargs['cir_idoso_total_pacientes_dia'],
+                                              denominador = kwargs['cir_idoso_total_saidas'])
+            clinico = self.kpi_tempo_medio( numerador = cli_total_pacientes_dia,
+                                            denominador = cli_total_saidas)
+            cirurgico = self.kpi_tempo_medio( numerador = cir_total_pacientes_dia,
+                                              denominador = cir_total_saidas)
+            ped = self.kpi_tempo_medio( numerador = ped_total_pacientes_dia,
+                                        denominador = ped_total_saidas)
+            ad = self.kpi_tempo_medio( numerador = ad_total_pacientes_dia,
+                                       denominador = ad_total_saidas)
+            idoso = self.kpi_tempo_medio( numerador = idoso_total_pacientes_dia,
+                                          denominador = idoso_total_saidas)
+            
+            return cli_pedi,cli_ad,cli_idoso,cir_pedi,cir_ad,cir_idoso,clinico,cirurgico,ped,ad,idoso
         else:
             return None
 
@@ -197,7 +286,6 @@ class KPI(object):
             kpi4_cli_pedi        = ( metrics.cli_pedi_obitos        / metrics.cli_pedi_saidas        )[0] *100
             kpi4_cli_adulto      = ( metrics.cli_ad_obitos          / metrics.cli_ad_saidas          )[0] *100
             kpi4_cli_idoso       = ( metrics.cli_idoso_obitos       / metrics.cli_idoso_saidas       )[0] *100
-
             kpi4_cir_neo_precoce = ( metrics.cir_neo_precoce_obitos / metrics.cir_neo_precoce_saidas )[0] *100
             kpi4_cir_neo_tardio  = ( metrics.cir_neo_tardio_obitos  / metrics.cir_neo_tardio_saidas  )[0] *100
             kpi4_cir_pedi        = ( metrics.cir_pedi_obitos        / metrics.cir_pedi_saidas        )[0] *100
@@ -293,27 +381,6 @@ class KPI(object):
             ))[0] *100
 
         # 5. Tempo médio de internação
-            kpi5_cli_pedi   = ( metrics.cli_pedi_pacientes_dia  / metrics.cli_pedi_saidas)[0]
-            kpi5_cli_adulto = ( metrics.cli_ad_pacientes_dia    / metrics.cli_ad_saidas)[0]
-            kpi5_cli_idoso  = ( metrics.cli_idoso_pacientes_dia / metrics.cli_idoso_saidas)[0]
-            kpi5_cir_pedi   = ( metrics.cir_pedi_pacientes_dia  / metrics.cir_pedi_saidas)[0]
-            kpi5_cir_adulto = ( metrics.cir_ad_pacientes_dia    / metrics.cir_ad_saidas)[0]
-            kpi5_cir_idoso  = ( metrics.cir_idoso_pacientes_dia / metrics.cir_idoso_saidas)[0]
-            kpi5_cli = ( ( metrics.cli_pedi_pacientes_dia+metrics.cli_ad_pacientes_dia+metrics.cli_idoso_pacientes_dia ) / 
-                            ( metrics.cli_pedi_saidas+metrics.cli_ad_saidas+metrics.cli_idoso_saidas ) )[0]
-            kpi5_cir = ( ( metrics.cir_pedi_pacientes_dia+metrics.cir_ad_pacientes_dia+metrics.cir_idoso_pacientes_dia ) / 
-                            ( metrics.cir_pedi_saidas+metrics.cir_ad_saidas+metrics.cir_idoso_saidas ) )[0]
-            kpi5_pedi = ( ( metrics.cli_pedi_pacientes_dia+metrics.cir_pedi_pacientes_dia ) / 
-                            ( metrics.cli_pedi_saidas+metrics.cir_pedi_saidas ) )[0] *100
-            kpi5_ad = ( ( metrics.cli_ad_pacientes_dia+metrics.cir_ad_pacientes_dia ) / 
-                        ( metrics.cli_ad_saidas+metrics.cir_ad_saidas ) )[0]
-            kpi5_idoso = ( ( metrics.cli_idoso_pacientes_dia+metrics.cir_idoso_pacientes_dia ) / 
-                            ( metrics.cli_idoso_saidas+metrics.cir_idoso_saidas ) )[0]
-            kpi5 =  (( metrics.cli_pedi_pacientes_dia+metrics.cli_ad_pacientes_dia+metrics.cli_idoso_pacientes_dia+
-                        metrics.cir_pedi_pacientes_dia+metrics.cir_ad_pacientes_dia+metrics.cir_idoso_pacientes_dia ) / (
-                        metrics.cli_pedi_saidas+metrics.cli_ad_saidas+metrics.cli_idoso_saidas+
-                        metrics.cir_pedi_saidas+metrics.cir_ad_saidas+metrics.cir_idoso_saidas ))[0]
-
         # 6. Tempo médio de permanência na emergência
         # 7. Tempo médio de espera na emergência para primeiro atendimento
         # 8. Taxa de início de antibiótico intravenoso profilático
