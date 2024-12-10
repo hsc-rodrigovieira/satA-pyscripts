@@ -59,5 +59,3 @@ class dbConfig (object):
                 return metrics
         else:
             None
-
-

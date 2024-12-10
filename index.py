@@ -52,7 +52,5 @@ if __name__=='__main__':
                                     cir_ad_total_saidas = df.at[0,'cir_ad_saidas'],
                                     cir_idoso_total_obitos = df.at[0,'cir_idoso_obitos'],
                                     cir_idoso_total_saidas = df.at[0,'cir_idoso_saidas'] )
-
-
     
     print('hello world')
