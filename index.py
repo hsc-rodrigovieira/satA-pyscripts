@@ -150,10 +150,10 @@ if __name__=='__main__':
     kpi = KPI()
     app = Index()
 
-    metricas = db.get_data( collection_name="metrics",
-                            query= { "organization_id": ObjectId("6745d7873f4e39e161319575"),
-                                     "year": 2023,
-                                     "month": 2 } )    
+    metricas = db.get_metrics( collection_name="metrics",
+                               query= { "organization_id": ObjectId("6745d7873f4e39e161319575"),
+                                        "year": 2023,
+                                        "month": 2 } )    
     df = app.make_dataframe( data=metricas )
     result_query = app.calculate( df=df )
     status = db.load_data( collection_name="kpi_results",

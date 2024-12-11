@@ -1,4 +1,5 @@
 import pymongo as db
+import streamlit as st
 import config
 from bson.objectid import ObjectId
 
@@ -27,7 +28,7 @@ class dbConfig (object):
         # Retornar True se tudo estiver válido
         return True
 
-    def get_data(self, collection_name:str, query:dict) -> dict:
+    def get_metrics(self, collection_name:str, query:dict) -> dict:
         chaves_obrigatorias = [
             "organization_id",
             "year",
@@ -59,6 +60,21 @@ class dbConfig (object):
                 return metrics
         else:
             None
+
+    @st.cache_data
+    def get_organizations(_self, collection_name:str) -> dict:           
+        query = {"status":"Active"}
+        try:
+            client = db.MongoClient(_self.conn_string)
+            database = client.get_database(_self.database)
+            collection = database.get_collection(collection_name)
+            organizations = collection.find(query)
+            names = [f"{i['name']} ({i['cnes']})" for i in organizations]
+            client.close()
+        except Exception as e:
+            raise Exception("Unable to retrieve the document due to the following error: ", e)
+        return names
+
 
     def load_data(self, collection_name:str, query:dict) -> bool:
         chaves_obrigatorias = [
