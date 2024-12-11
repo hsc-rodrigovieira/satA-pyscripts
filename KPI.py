@@ -267,20 +267,25 @@ class KPI(object):
 
     def kpi6(self, **kwargs) -> float:
         # 6. Tempo médio de permanência na emergência
-        chaves_obrigatorias = ['total_tempo_entrada_ate_termino','total_pacientes_buscaram_atendimento']
+        chaves_obrigatorias = [
+            'total_tempo_entrada_termino',
+            'total_pacientes_buscaram_atendimento'
+        ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
             # Calcular o KPI        
-            return self.kpi_tempo_medio( numerador = kwargs['total_tempo_entrada_ate_termino'],
+            return self.kpi_tempo_medio( numerador = kwargs['total_tempo_entrada_termino'],
                                          denominador = kwargs['total_pacientes_buscaram_atendimento'] )
         else:
             return None
 
     def kpi7(self, **kwargs) -> dict:
         # 7. Tempo médio de espera na emergência para primeiro atendimento
-        chaves_obrigatorias = ['nvl2_total_tempo_espera',
-                               'nvl2_total_pacientes_buscaram_atendimento',
-                               'nvl3_total_tempo_espera',
-                               'nvl3_total_pacientes_buscaram_atendimento']
+        chaves_obrigatorias = [
+            'nvl2_total_tempo_espera',
+            'nvl2_total_pacientes_buscaram_atendimento',
+            'nvl3_total_tempo_espera',
+            'nvl3_total_pacientes_buscaram_atendimento'
+        ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):
             total_tempo_espera = kwargs['nvl2_total_tempo_espera']+kwargs['nvl3_total_tempo_espera']
             total_pacientes_buscaram_atendimento = kwargs['nvl2_total_pacientes_buscaram_atendimento']+kwargs['nvl3_total_pacientes_buscaram_atendimento']
@@ -296,7 +301,10 @@ class KPI(object):
 
     def kpi8(self, **kwargs) -> float:
         # 8. Taxa de início de antibiótico intravenoso profilático
-        chaves_obrigatorias = ['total_cirurgias_limpas_com_atb','total_cirurgias_limpas']
+        chaves_obrigatorias = [
+            'total_cirurgias_limpas_com_atb',
+            'total_cirurgias_limpas'
+        ]
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
             # Calcular o KPI        
             return self.kpi_taxa( numerador = kwargs['total_cirurgias_limpas_com_atb'],
@@ -306,11 +314,14 @@ class KPI(object):
 
     def kpi9(self, **kwargs) -> float:
         # 9. Taxa de infecção de sítio cirúrgico em cirurgia limpa
-        chaves_obrigatorias = ['total_isc_ate_30_dias','total_cirurgias_limpas_mes_anterior']
+        chaves_obrigatorias = [
+            'total_isc_30_dias',
+            'total_cirurgias_limpas_mes_anterior'
+        ]
 
         if (self.validar_kwargs(kwargs,chaves_obrigatorias)):        
             # Calcular o KPI        
-            return self.kpi_taxa( numerador = kwargs['total_isc_ate_30_dias'],
+            return self.kpi_taxa( numerador = kwargs['total_isc_30_dias'],
                                   denominador = kwargs['total_cirurgias_limpas_mes_anterior'] )      
         else:
             return None
