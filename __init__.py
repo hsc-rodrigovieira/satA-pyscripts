@@ -1,10 +1,11 @@
-import pandas as pd
+import re
+import config
+import pandas    as pd
 import streamlit as st
-from KPI           import KPI
-from dbConfig      import dbConfig
-from bson.objectid import ObjectId
+from KPI      import KPI
+from dbConfig import dbConfig
 
-class Index(object):
+class App(object):
 
     def __init__(self):
         self._1_proporcao_partos_vaginais = None
@@ -33,9 +34,9 @@ class Index(object):
             except ValueError as e:
                 raise Exception("Unable to load data from the collection: ", e)
             
-    def make_result_dict(self, organization_id:ObjectId, year:int, month:int) -> dict:
+    def make_result_dict(self, organization_cnes:int, year:int, month:int) -> dict:
         result_dict = {
-            "organization_id": organization_id,
+            "organization_cnes": organization_cnes,
             "year": year,
             "month": month,
             "rkpi1": self._1_proporcao_partos_vaginais,
@@ -140,25 +141,56 @@ class Index(object):
                                         total_pacientes_dia = df.at[0,'pacientes_dia'] )
         self._14_evento_sentinela = kpi.kpi14( total_eventos_sentinela = df.at[0,'eventos_sentinela'],
                                         total_pacientes_dia = df.at[0,'pacientes_dia'] )
-        result_dict = self.make_result_dict( organization_id = ObjectId(df.at[0,'organization_id']),
+        result_dict = self.make_result_dict( organization_cnes = int(df.at[0,'organization_cnes']),
                                              year = int(df.at[0,'year']),
                                              month = int(df.at[0,'month']) )
         return result_dict
+    
+    def get_key_from_value(self,dict:dict,value):
+        return next((k for k, v in dict.items() if v == value), None)
 
 if __name__=='__main__':
     db = dbConfig()
     kpi = KPI()
-    app = Index()
+    app = App()
 
-    metricas = db.get_metrics( collection_name="metrics",
-                               query= { "organization_id": ObjectId("6745d7873f4e39e161319575"),
-                                        "year": 2023,
-                                        "month": 2 } )    
-    df = app.make_dataframe( data=metricas )
-    result_query = app.calculate( df=df )
-    status = db.load_data( collection_name="kpi_results",
-                           query=result_query )    
-    if status:
-        print("Success")
-    else:
-        print("fail")
+    with st.container():    
+        st.title("Consolidação de Indicadores")
+        st.write(":ringed_planet: Saturn Analytics")
+
+    with st.container():
+        st.subheader("Configuração")   
+        box_organization = st.selectbox(label="Empresa:",options=db.get_organizations("organizations"),index=None)
+        if box_organization:
+            organization_cnes = re.search("\d+",box_organization).group()
+            with st.empty():
+                with st.container():          
+                    with st.spinner(text="Carregando..."):
+                        last_consolidation = db.get_last_consolidation(collection_name="kpi_results", cnes=organization_cnes)
+                        if last_consolidation:
+                            info = f"Último mês consolidado: {config.MONTH_MASK[last_consolidation[0]['month']]} de {last_consolidation[0]['year']}"
+                            st.info(info,icon="ℹ️")
+                        else:
+                            info = "Nenhuma consolidação foi encontrada para esta empresa."
+                            st.warning(info,icon="❕")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            var_year = st.selectbox(label="Ano:",options=config.YEARS,index=None)
+        with col2:
+            var_month = st.selectbox(label="Mês:",options=config.MONTH_MASK.values(),index=None)        
+
+        if st.button(label="Consolidar", use_container_width=True):            
+            st.toast("Consolidando...",icon="⌛")
+            metricas = db.get_metrics( collection_name="metrics",
+                                       query= { "organization_cnes": int(organization_cnes),
+                                                "year": int(var_year),
+                                                "month": app.get_key_from_value(config.MONTH_MASK,var_month) } )    
+            df = app.make_dataframe( data=metricas )
+            result_query = app.calculate( df=df )
+            status = db.load_data( collection_name="kpi_results",
+                                   query=result_query )              
+            if status:
+                st.toast('Concluído!',icon="✅")
+            else:
+                st.toast('Ocorreu um erro!',icon="☠️")

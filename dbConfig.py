@@ -1,7 +1,6 @@
 import pymongo as db
 import streamlit as st
 import config
-from bson.objectid import ObjectId
 
 class dbConfig (object):
 
@@ -30,7 +29,7 @@ class dbConfig (object):
 
     def get_metrics(self, collection_name:str, query:dict) -> dict:
         chaves_obrigatorias = [
-            "organization_id",
+            "organization_cnes",
             "year",
             "month"
         ]
@@ -40,12 +39,12 @@ class dbConfig (object):
         
         if(self.validar_query(query,chaves_obrigatorias)):
             # Validar se os valores das chaves obrigatórias não são nulos
-            if type(query["organization_id"]) is not ObjectId:
-                    raise ValueError(f"Tipo da chave 'organization_id' incorreto. Esperado ObjectId.")
+            if type(query["organization_cnes"]) is not int:
+                raise ValueError(f"Tipo da chave 'organization_cnes' incorreto. Esperado int.")
             if type(query["year"]) is not int:
-                    raise ValueError(f"Tipo da chave 'year' incorreto. Esperado int.")
+                raise ValueError(f"Tipo da chave 'year' incorreto. Esperado int.")
             if type(query["month"]) is not int:
-                    raise ValueError(f"Tipo da chave 'month' incorreto. Esperado int.")
+                raise ValueError(f"Tipo da chave 'month' incorreto. Esperado int.")
             try:
                 client = db.MongoClient(self.conn_string)
                 database = client.get_database(self.database)
@@ -93,7 +92,7 @@ class dbConfig (object):
 
     def load_data(self, collection_name:str, query:dict) -> bool:
         chaves_obrigatorias = [
-            'organization_id', 'year', 'month', 'rkpi1', 'rkpi2_clinico',
+            'organization_cnes', 'year', 'month', 'rkpi1', 'rkpi2_clinico',
             'rkpi2_cirurgico', 'rkpi2_geral', 'rkpi3', 'rkpi4_cli_neo_precoce',
             'rkpi4_cli_neo_tardio', 'rkpi4_cli_pedi', 'rkpi4_cli_ad', 'rkpi4_cli_idoso',
             'rkpi4_cir_neo_precoce', 'rkpi4_cir_neo_tardio', 'rkpi4_cir_pedi',
@@ -116,8 +115,8 @@ class dbConfig (object):
             raise ValueError("Os parametros não podem estar vazios.")
         if(self.validar_query(query,chaves_obrigatorias)):
             # Validar se os valores das chaves obrigatórias não são nulos
-            if type(query["organization_id"]) is not ObjectId:
-                raise ValueError(f"Tipo da chave 'organization_id' incorreto. Esperado ObjectId.")
+            if type(query["organization_cnes"]) is not int:
+                raise ValueError(f"Tipo da chave 'organization_cnes' incorreto. Esperado int.")
         try:
             client = db.MongoClient(self.conn_string)
             database = client.get_database(self.database)
