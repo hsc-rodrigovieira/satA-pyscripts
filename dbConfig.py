@@ -74,7 +74,22 @@ class dbConfig (object):
         except Exception as e:
             raise Exception("Unable to retrieve the document due to the following error: ", e)
         return names
-
+    
+    @st.cache_data
+    def get_last_consolidation(_self, collection_name:str, cnes:int) -> list:           
+        query = {"organization_cnes": int(cnes)}
+        fields = {"year":1,"month":1,"_id":0}
+        sorting = [("year",db.DESCENDING),("month",db.DESCENDING)]
+        try:
+            client = db.MongoClient(_self.conn_string)
+            database = client.get_database(_self.database)
+            collection = database.get_collection(collection_name)
+            last_consolidation = collection.find(query,fields).sort(sorting)
+            year_month = list(last_consolidation)
+            client.close()
+        except Exception as e:
+            raise Exception("Unable to retrieve the document due to the following error: ", e)
+        return year_month
 
     def load_data(self, collection_name:str, query:dict) -> bool:
         chaves_obrigatorias = [
@@ -96,7 +111,6 @@ class dbConfig (object):
             'rkpi11_geral', 'rkpi12_cir_orto', 'rkpi12_cir_n_orto', 'rkpi12_cirurgico',
             'rkpi12_geral', 'rkpi13', 'rkpi14'
         ]
-
         # Validar existência dos parâmetros
         if not collection_name or not query:
             raise ValueError("Os parametros não podem estar vazios.")
