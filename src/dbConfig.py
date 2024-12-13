@@ -1,4 +1,5 @@
 import pymongo as db
+import pandas as pd
 import streamlit as st
 import config
 
@@ -129,3 +130,24 @@ class dbConfig (object):
             raise Exception("DB return missing.") 
         else:
             return result.acknowledged
+        
+    def upload_arquivo(self, dataframe:pd.DataFrame, collection_name:str) -> tuple[bool, str]:
+        if dataframe:
+            query = dataframe.to_dict(orient='records')
+            try:
+                client = db.MongoClient(config.MONGO_URI)
+                database = client.get_database(config.DATABASE)
+                collection = database.get_collection(collection_name)
+                if len(query) == 1:
+                    inserted_data = collection.insert_one(query)
+                    registers_num = len(inserted_data.inserted_id)
+                else:
+                    inserted_data = collection.insert_many(query)
+                    registers_num = len(inserted_data.inserted_ids)
+                client.close()                
+                return inserted_data.acknowledged, str(registers_num)
+            except:
+                error = "Unable to insert data due to a internal server error"
+                return False, error
+        else:
+            return False, "Dados inválidos"
