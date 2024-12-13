@@ -1,4 +1,5 @@
 import re
+import time
 import config
 import pandas    as pd
 import streamlit as st
@@ -148,11 +149,17 @@ class App(object):
     
     def get_key_from_value(self,dict:dict,value):
         return next((k for k, v in dict.items() if v == value), None)
-
+    
 if __name__=='__main__':
     db = dbConfig()
     kpi = KPI()
     app = App()
+
+    # Configurar estado inicial antes de criar o widget
+    if "var_year" not in st.session_state:
+        st.session_state.var_year = None
+    if "var_month" not in st.session_state:
+        st.session_state.var_month = None
 
     with st.container():    
         st.title("Consolidação de Indicadores")
@@ -162,11 +169,12 @@ if __name__=='__main__':
         st.subheader("Configuração")   
         box_organization = st.selectbox(label="Empresa:",options=db.get_organizations("organizations"),index=None)
         if box_organization:
-            organization_cnes = re.search("\d+",box_organization).group()
+            organization_cnes = re.search(r"\d+",box_organization).group()
             with st.empty():
                 with st.container():          
                     with st.spinner(text="Carregando..."):
-                        last_consolidation = db.get_last_consolidation(collection_name="kpi_results", cnes=organization_cnes)
+                        last_consolidation = db.get_last_consolidation( collection_name="kpi_results",
+                                                                        cnes=organization_cnes )
                         if last_consolidation:
                             info = f"Último mês consolidado: {config.MONTH_MASK[last_consolidation[0]['month']]} de {last_consolidation[0]['year']}"
                             st.info(info,icon="ℹ️")
@@ -176,9 +184,21 @@ if __name__=='__main__':
         
         col1, col2 = st.columns(2)
         with col1:
-            var_year = st.selectbox(label="Ano:",options=config.YEARS,index=None)
+            var_year = st.selectbox( placeholder="Selecione o ano",
+                                     label="Ano:",
+                                     options=config.YEARS,
+                                     index=None,
+                                     #index=0 if st.session_state.var_year is None else config.YEARS.index(st.session_state.var_year),
+                                     key='var_year'
+                                    )
         with col2:
-            var_month = st.selectbox(label="Mês:",options=config.MONTH_MASK.values(),index=None)        
+            var_month = st.selectbox( placeholder="Selecione o mês",
+                                      label="Mês:",
+                                      options=config.MONTH_MASK.values(),
+                                      index=None,
+                                      #index=0 if st.session_state.var_month is None else list(config.MONTH_MASK.values()).index(st.session_state.var_month),
+                                      key='var_month'
+                                    )        
 
         if st.button(label="Consolidar", use_container_width=True):            
             st.toast("Consolidando...",icon="⌛")
@@ -191,6 +211,7 @@ if __name__=='__main__':
             status = db.load_data( collection_name="kpi_results",
                                    query=result_query )              
             if status:
-                st.toast('Concluído!',icon="✅")
+                st.toast(f'Concluído!',icon="✅")
+                db.get_last_consolidation.clear()
             else:
                 st.toast('Ocorreu um erro!',icon="☠️")

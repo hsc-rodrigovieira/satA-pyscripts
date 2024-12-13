@@ -60,7 +60,7 @@ class dbConfig (object):
         else:
             None
 
-    @st.cache_data
+    @st.cache_data(show_spinner=False)
     def get_organizations(_self, collection_name:str) -> dict:           
         query = {"status":"Active"}
         try:
@@ -74,7 +74,7 @@ class dbConfig (object):
             raise Exception("Unable to retrieve the document due to the following error: ", e)
         return names
     
-    @st.cache_data
+    @st.cache_data(show_spinner=False)
     def get_last_consolidation(_self, collection_name:str, cnes:int) -> list:           
         query = {"organization_cnes": int(cnes)}
         fields = {"year":1,"month":1,"_id":0}
@@ -88,7 +88,7 @@ class dbConfig (object):
             client.close()
         except Exception as e:
             raise Exception("Unable to retrieve the document due to the following error: ", e)
-        return year_month
+        return year_month        
 
     def load_data(self, collection_name:str, query:dict) -> bool:
         chaves_obrigatorias = [
