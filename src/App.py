@@ -1,14 +1,11 @@
-import re
-import time
-import config
-import pandas    as pd
-import streamlit as st
-from KPI      import KPI
-from dbConfig import dbConfig
+import pandas as pd
+from src.KPI import KPI
 
 class App(object):
 
     def __init__(self):
+
+        self.kpi = KPI()
         self._1_proporcao_partos_vaginais = None
         self._2_proporcao_reinternacoes_30_dias = None
         self._3_taxa_pcr = None
@@ -58,15 +55,15 @@ class App(object):
         return result_dict
             
     def calculate(self,df:pd.DataFrame) -> dict:
-        self._1_proporcao_partos_vaginais = kpi.kpi1( total_partos_vaginais = df.at[0,'partos_vaginais'],
+        self._1_proporcao_partos_vaginais = self.kpi.kpi1( total_partos_vaginais = df.at[0,'partos_vaginais'],
                                                     total_partos_cesareos = df.at[0,'partos_cesareos'] )
-        self._2_proporcao_reinternacoes_30_dias = kpi.kpi2 ( cli_total_reinternacoes_30_dias = df.at[0,'reinternacoes_clinicas'],
+        self._2_proporcao_reinternacoes_30_dias = self.kpi.kpi2 ( cli_total_reinternacoes_30_dias = df.at[0,'reinternacoes_clinicas'],
                                                         cli_total_saida_mes_anterior = df.at[0,'saidas_clinicas_anterior'],
                                                         cir_total_reinternacoes_30_dias = df.at[0,'reinternacoes_cirurgicas'],
                                                         cir_total_saida_mes_anterior = df.at[0,'saidas_cirurgicas_anterior'] )
-        self._3_taxa_pcr = kpi.kpi3( total_pcr = df.at[0,'pcr_eventos'],
+        self._3_taxa_pcr = self.kpi.kpi3( total_pcr = df.at[0,'pcr_eventos'],
                                 total_pacientes_dia = df.at[0,'pacientes_dia'] )
-        self._4_taxa_mortalidade = kpi.kpi4( cli_neo_precoce_total_obitos = df.at[0,'cli_neo_precoce_obitos'],
+        self._4_taxa_mortalidade = self.kpi.kpi4( cli_neo_precoce_total_obitos = df.at[0,'cli_neo_precoce_obitos'],
                                         cli_neo_precoce_total_saidas = df.at[0,'cli_neo_precoce_saidas'],
                                         cli_neo_tardio_total_obitos = df.at[0,'cli_neo_tardio_obitos'],
                                         cli_neo_tardio_total_saidas = df.at[0,'cli_neo_tardio_saidas'],
@@ -86,7 +83,7 @@ class App(object):
                                         cir_ad_total_saidas = df.at[0,'cir_ad_saidas'],
                                         cir_idoso_total_obitos = df.at[0,'cir_idoso_obitos'],
                                         cir_idoso_total_saidas = df.at[0,'cir_idoso_saidas'] )
-        self._5_tempo_medio_internacao = kpi.kpi5( cli_pedi_total_pacientes_dia = df.at[0,'cli_pedi_pacientes_dia'],
+        self._5_tempo_medio_internacao = self.kpi.kpi5( cli_pedi_total_pacientes_dia = df.at[0,'cli_pedi_pacientes_dia'],
                                             cli_pedi_total_saidas = df.at[0,'cli_pedi_saidas'],
                                             cli_ad_total_pacientes_dia = df.at[0,'cli_ad_pacientes_dia'],
                                             cli_ad_total_saidas = df.at[0,'cli_ad_saidas'],
@@ -98,17 +95,17 @@ class App(object):
                                             cir_ad_total_saidas = df.at[0,'cir_ad_saidas'],
                                             cir_idoso_total_pacientes_dia = df.at[0,'cir_idoso_pacientes_dia'],
                                             cir_idoso_total_saidas = df.at[0,'cir_idoso_saidas'] )
-        self._6_tempo_medio_emergencia = kpi.kpi6( total_tempo_entrada_termino = df.at[0,'total_tempo_permanencia_emergencia_hr'],
+        self._6_tempo_medio_emergencia = self.kpi.kpi6( total_tempo_entrada_termino = df.at[0,'total_tempo_permanencia_emergencia_hr'],
                                             total_pacientes_buscaram_atendimento = df.at[0,'total_pacientes_emergencia'] )
-        self._7_tempo_medio_espera_emergencia = kpi.kpi7( nvl2_total_tempo_espera = df.at[0,'tempo_total_emergencia_nivel2_min'],
+        self._7_tempo_medio_espera_emergencia = self.kpi.kpi7( nvl2_total_tempo_espera = df.at[0,'tempo_total_emergencia_nivel2_min'],
                                                     nvl2_total_pacientes_buscaram_atendimento = df.at[0,'pacientes_emergencia_nivel2'],
                                                     nvl3_total_tempo_espera = df.at[0,'tempo_total_emergencia_nivel3_min'],
                                                     nvl3_total_pacientes_buscaram_atendimento = df.at[0,'pacientes_emergencia_nivel3'] )
-        self._8_taxa_atb_profilatico = kpi.kpi8( total_cirurgias_limpas_com_atb = df.at[0,'cirurgias_com_antibiotico'],
+        self._8_taxa_atb_profilatico = self.kpi.kpi8( total_cirurgias_limpas_com_atb = df.at[0,'cirurgias_com_antibiotico'],
                                             total_cirurgias_limpas = df.at[0,'total_cirurgias_limpas'] )
-        self._9_taxa_infeccao_cirurgia_limpa = kpi.kpi9( total_isc_30_dias = df.at[0,'total_infeccoes'],
+        self._9_taxa_infeccao_cirurgia_limpa = self.kpi.kpi9( total_isc_30_dias = df.at[0,'total_infeccoes'],
                                                     total_cirurgias_limpas_mes_anterior = df.at[0,'total_cirurgias_limpas_anterior'] )
-        self._10_incidencia_ipcs_cvc = kpi.kpi10( ui_neo_total_ipcs = df.at[0,'ui_neo_infec'],
+        self._10_incidencia_ipcs_cvc = self.kpi.kpi10( ui_neo_total_ipcs = df.at[0,'ui_neo_infec'],
                                             uti_neo_total_ipcs = df.at[0,'uti_neo_infec'],
                                             ui_pedi_total_ipcs = df.at[0,'ui_pedi_infec'],
                                             uti_pedi_total_ipcs = df.at[0,'uti_pedi_infec'],
@@ -120,7 +117,7 @@ class App(object):
                                             uti_pedi_total_cvc_dia = df.at[0,'uti_pedi_cvc_dia'],
                                             ui_ad_total_cvc_dia = df.at[0,'ui_ad_cvc_dia'],
                                             uti_ad_total_cvc_dia = df.at[0,'uti_ad_cvc_dia'] )
-        self._11_incidencia_itu_cvd = kpi.kpi11( ui_neo_total_itu = df.at[0,'ui_neo_itu'],
+        self._11_incidencia_itu_cvd = self.kpi.kpi11( ui_neo_total_itu = df.at[0,'ui_neo_itu'],
                                             uti_neo_total_itu = df.at[0,'uti_neo_itu'],
                                             ui_pedi_total_itu = df.at[0,'ui_pedi_itu'],
                                             uti_pedi_total_itu = df.at[0,'uti_pedi_itu'],
@@ -132,15 +129,15 @@ class App(object):
                                             uti_pedi_total_cvd_dia = df.at[0,'uti_pedi_cvd_dia'],
                                             ui_ad_total_cvd_dia = df.at[0,'ui_ad_cvd_dia'],
                                             uti_ad_total_cvd_dia = df.at[0,'uti_ad_cvd_dia'] )
-        self._12_taxa_profilaxia_tromboembolismo = kpi.kpi12( cli_total_pacientes_risco_profilaxia_TEV = df.at[0,'cli_profilaxia'],
+        self._12_taxa_profilaxia_tromboembolismo = self.kpi.kpi12( cli_total_pacientes_risco_profilaxia_TEV = df.at[0,'cli_profilaxia'],
                                                         cli_total_pacientes_risco = df.at[0,'cli_total_pacientes'],
                                                         cir_orto_total_pacientes_risco_profilaxia_TEV = df.at[0,'cir_orto_profilaxia'],
                                                         cir_orto_total_pacientes_risco = df.at[0,'cir_orto_total_pacientes'],
                                                         cir_n_orto_total_pacientes_risco_profilaxia_TEV = df.at[0,'cir_nao_orto_profilaxia'],
                                                         cir_n_orto_total_pacientes_risco = df.at[0,'cir_nao_orto_total_pacientes'] )
-        self._13_incidencia_queda = kpi.kpi13( total_quedas_dano = df.at[0,'quedas_com_dano'],
+        self._13_incidencia_queda = self.kpi.kpi13( total_quedas_dano = df.at[0,'quedas_com_dano'],
                                         total_pacientes_dia = df.at[0,'pacientes_dia'] )
-        self._14_evento_sentinela = kpi.kpi14( total_eventos_sentinela = df.at[0,'eventos_sentinela'],
+        self._14_evento_sentinela = self.kpi.kpi14( total_eventos_sentinela = df.at[0,'eventos_sentinela'],
                                         total_pacientes_dia = df.at[0,'pacientes_dia'] )
         result_dict = self.make_result_dict( organization_cnes = int(df.at[0,'organization_cnes']),
                                              year = int(df.at[0,'year']),
@@ -149,69 +146,4 @@ class App(object):
     
     def get_key_from_value(self,dict:dict,value):
         return next((k for k, v in dict.items() if v == value), None)
-    
-if __name__=='__main__':
-    db = dbConfig()
-    kpi = KPI()
-    app = App()
-
-    # Configurar estado inicial antes de criar o widget
-    if "var_year" not in st.session_state:
-        st.session_state.var_year = None
-    if "var_month" not in st.session_state:
-        st.session_state.var_month = None
-
-    with st.container():    
-        st.title("Consolidação de Indicadores")
-        st.write(":ringed_planet: Saturn Analytics")
-
-    with st.container():
-        st.subheader("Configuração")   
-        box_organization = st.selectbox(label="Empresa:",options=db.get_organizations("organizations"),index=None)
-        if box_organization:
-            organization_cnes = re.search(r"\d+",box_organization).group()
-            with st.empty():
-                with st.container():          
-                    with st.spinner(text="Carregando..."):
-                        last_consolidation = db.get_last_consolidation( collection_name="kpi_results",
-                                                                        cnes=organization_cnes )
-                        if last_consolidation:
-                            info = f"Último mês consolidado: {config.MONTH_MASK[last_consolidation[0]['month']]} de {last_consolidation[0]['year']}"
-                            st.info(info,icon="ℹ️")
-                        else:
-                            info = "Nenhuma consolidação foi encontrada para esta empresa."
-                            st.warning(info,icon="❕")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            var_year = st.selectbox( placeholder="Selecione o ano",
-                                     label="Ano:",
-                                     options=config.YEARS,
-                                     index=None,
-                                     #index=0 if st.session_state.var_year is None else config.YEARS.index(st.session_state.var_year),
-                                     key='var_year'
-                                    )
-        with col2:
-            var_month = st.selectbox( placeholder="Selecione o mês",
-                                      label="Mês:",
-                                      options=config.MONTH_MASK.values(),
-                                      index=None,
-                                      #index=0 if st.session_state.var_month is None else list(config.MONTH_MASK.values()).index(st.session_state.var_month),
-                                      key='var_month'
-                                    )        
-
-        if st.button(label="Consolidar", use_container_width=True):            
-            st.toast("Consolidando...",icon="⌛")
-            metricas = db.get_metrics( collection_name="metrics",
-                                       query= { "organization_cnes": int(organization_cnes),
-                                                "year": int(var_year),
-                                                "month": app.get_key_from_value(config.MONTH_MASK,var_month) } )    
-            df = app.make_dataframe( data=metricas )
-            result_query = app.calculate( df=df )
-            status = db.load_data( collection_name="kpi_results",
-                                   query=result_query )              
-            if status:
-                st.toast(f'Concluído!',icon="✅")
-                db.get_last_consolidation.clear()
-            else:
-                st.toast('Ocorreu um erro!',icon="☠️")
+ 
