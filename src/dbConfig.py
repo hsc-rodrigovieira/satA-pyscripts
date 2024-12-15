@@ -1,5 +1,5 @@
-import pymongo as db
-import pandas as pd
+import pandas    as pd
+import pymongo   as db
 import streamlit as st
 import config
 
@@ -85,7 +85,7 @@ class dbConfig (object):
             database = client.get_database(_self.database)
             collection = database.get_collection(collection_name)
             last_consolidation = collection.find(query,fields).sort(sorting)
-            year_month = list(last_consolidation)
+            year_month = last_consolidation.to_list()[0]
             client.close()
         except Exception as e:
             raise Exception("Unable to retrieve the document due to the following error: ", e)
@@ -151,3 +151,26 @@ class dbConfig (object):
                 return False, error
         else:
             return False, "Dados inválidos"
+
+    @st.cache_data(show_spinner=False)
+    def get_summary(_self, organization_cnes: int, year: int):
+
+        query = { "organization_cnes": organization_cnes,
+                  "year": year }
+        fields = {"year":1, "month":1, "_id":0}
+        try:
+            client = db.MongoClient(config.MONGO_URI)
+            database = client.get_database(config.DATABASE)
+            col_results = database.get_collection("kpi_results")    
+            find_results = col_results.find(query,fields)
+            results = find_results.to_list()
+
+            col_metrics = database.get_collection("metrics")    
+            find_metrics = col_metrics.find(query,fields)
+            metrics = find_metrics.to_list()
+            
+            client.close()
+        except Exception as e:
+            raise Exception("Unable to retrieve the document due to the following error: ", e)
+
+        return metrics, results

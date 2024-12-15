@@ -1,6 +1,6 @@
-import pandas as pd
-from src.KPI import KPI
+import pandas    as pd
 import streamlit as st
+from src.KPI import KPI
 
 class App(object):
 
@@ -229,5 +229,28 @@ class App(object):
         elif invalid:
             return False
         else:
-            st.info("Arquivo validado.", icon="✅")
+            st.info(f"Arquivo validado. Empresa {df['organization_cnes'][0]}.", icon="✅")
             return True, df
+    # HOME
+    def valida_historico(self, raw_data: list) -> pd.DataFrame:
+
+        if raw_data:
+            dataframe = pd.DataFrame(raw_data).T.drop('year',axis=0)
+            dataframe = pd.DataFrame(dataframe.apply(lambda x: not pd.isna(x.any()),axis=0)).T
+        else: dataframe = pd.DataFrame()
+
+        return dataframe
+    
+    def monta_historico(self, dados_metricas: pd.DataFrame, dados_resultados: pd.DataFrame) -> pd.DataFrame:
+
+        df_metricas = self.valida_historico(dados_metricas)
+        df_resultados = self.valida_historico(dados_resultados)
+
+        historico = pd.concat([df_metricas,df_resultados]).reset_index()
+        historico['index'] = historico['index'].astype(str)
+        historico.at[0,'index'] = 'Enviado'
+        historico.at[1,'index'] = 'Consolidado'
+        historico.columns=["STATUS", "JAN", "FEV", "MAR", "ABR", "MAIO", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"]
+        historico = historico.fillna(False)
+
+        return historico

@@ -1,5 +1,3 @@
-import pandas as pd
-
 class KPI(object):
 
     def __init__ ( self ):
